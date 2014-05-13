@@ -1,0 +1,36 @@
+{
+  "name": "gaffa-scope",
+  "author": "Kory Nunn <knunn187@gmail.com>",
+  "version": "1.0.0",
+  "main": "scope.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KoryNunn/gaffa-scope.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KoryNunn/gaffa-scope/issues"
+  },
+  "keywords": [
+    "gaffa",
+    "scope",
+    "action"
+  ],
+  "peerDependencies": {
+    "gaffa": "^1.0.0"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "gaffa": "^1.5.6",
+    "gaffa-set": "^1.1.1",
+    "gaffa-button": "^1.0.0"
+  },
+  "dependencies": {},
+  "description": "Pass extra scope to child actions.",
+  "homepage": "https://github.com/KoryNunn/gaffa-scope",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
