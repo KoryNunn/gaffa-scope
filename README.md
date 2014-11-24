@@ -18,9 +18,9 @@ This is an Action for use in [gaffa](https://github.com/gaffa-tape/gaffa-js)
 
 ## Properties (instanceof Gaffa.Property)
 
-### scope
+### triggerScope
 
-An object to add to scope that will be passed to children actions.
+An object to add to scope that will be passed to triggered actions.
 
 eg:
 
@@ -31,7 +31,7 @@ eg:
 
     // A scope action puts a variable, 'c' into scope, with the value of [a]
     var scope = new Scope();
-    scope.scope.binding = '(object "c" [a])';
+    scope.triggerScope.binding = '{"c" [a]}';
 
     // Assign the child to be run whe  the scope action is triggered.
     scope.actions.trigger = [set];

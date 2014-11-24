@@ -14,7 +14,7 @@ set.source.binding = 'c';
 set.target.binding = '[c]';
 
 var scope = new Scope();
-scope.scope.binding = '(object "c" [a])';
+scope.triggerScope.binding = '(object "c" [a])';
 scope.actions.trigger = [set];
 
 // create a button to test with

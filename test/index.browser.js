@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 //Copyright (C) 2012 Kory Nunn
 
 //Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -44,27 +44,37 @@
         root.crel = factory();
     }
 }(this, function () {
-    // based on http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
-    var isNode = typeof Node === 'function'
-        ? function (object) { return object instanceof Node; }
-        : function (object) {
-            return object
-                && typeof object === 'object'
-                && typeof object.nodeType === 'number'
-                && typeof object.nodeName === 'string';
+    var fn = 'function',
+        obj = 'object',
+        isType = function(a, type){
+            return typeof a === type;
+        },
+        isNode = typeof Node === fn ? function (object) {
+            return object instanceof Node;
+        } :
+        // in IE <= 8 Node is an object, obviously..
+        function(object){
+            return object &&
+                isType(object, obj) &&
+                ('nodeType' in object) &&
+                isType(object.ownerDocument,obj);
+        },
+        isElement = function (object) {
+            return crel.isNode(object) && object.nodeType === 1;
+        },
+        isArray = function(a){
+            return a instanceof Array;
+        },
+        appendChild = function(element, child) {
+          if(!isNode(child)){
+              child = document.createTextNode(child);
+          }
+          element.appendChild(child);
         };
-    var isArray = function(a){ return a instanceof Array; };
-    var appendChild = function(element, child) {
-      if(!isNode(child)){
-          child = document.createTextNode(child);
-      }
-      element.appendChild(child);
-    };
 
 
     function crel(){
-        var document = window.document,
-            args = arguments, //Note: assigned to a variable to assist compilers. Saves about 40 bytes in closure compiler. Has negligable effect on performance.
+        var args = arguments, //Note: assigned to a variable to assist compilers. Saves about 40 bytes in closure compiler. Has negligable effect on performance.
             element = args[0],
             child,
             settings = args[1],
@@ -72,19 +82,19 @@
             argumentsLength = args.length,
             attributeMap = crel.attrMap;
 
-        element = isNode(element) ? element : document.createElement(element);
+        element = crel.isElement(element) ? element : document.createElement(element);
         // shortcut
         if(argumentsLength === 1){
             return element;
         }
 
-        if(typeof settings !== 'object' || isNode(settings) || isArray(settings)) {
+        if(!isType(settings,obj) || crel.isNode(settings) || isArray(settings)) {
             --childIndex;
             settings = null;
         }
 
         // shortcut if there is only one child that is a string
-        if((argumentsLength - childIndex) === 1 && typeof args[childIndex] === 'string' && element.textContent !== undefined){
+        if((argumentsLength - childIndex) === 1 && isType(args[childIndex], 'string') && element.textContent !== undefined){
             element.textContent = args[childIndex];
         }else{
             for(; childIndex < argumentsLength; ++childIndex){
@@ -109,7 +119,7 @@
                 element.setAttribute(key, settings[key]);
             }else{
                 var attr = crel.attrMap[key];
-                if(typeof attr === 'function'){
+                if(typeof attr === fn){
                     attr(element, settings[key]);
                 }else{
                     element.setAttribute(attr, settings[key]);
@@ -125,6 +135,7 @@
     crel['attrMap'] = {};
 
     // String referenced so that compilers maintain the property name.
+    crel["isElement"] = isElement;
     crel["isNode"] = isNode;
 
     return crel;
@@ -6187,8 +6198,8 @@ Lang.Scope = Scope;
 Lang.Token = Token;
 
 module.exports = Lang;
-}).call(this,require("/usr/lib/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"./token":20,"/usr/lib/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":28}],20:[function(require,module,exports){
+}).call(this,require('_process'))
+},{"./token":20,"_process":28}],20:[function(require,module,exports){
 function Token(substring, length){
     this.original = substring;
     this.length = length;
@@ -7006,10 +7017,10 @@ var Gaffa = require('gaffa');
 function Scope(actionDefinition){}
 Scope = Gaffa.createSpec(Scope, Gaffa.Action);
 Scope.prototype._type = 'scope';
-Scope.prototype.scope = new Gaffa.Property();
+Scope.prototype.triggerScope = new Gaffa.Property();
 Scope.prototype.trigger = function(parent, scope, event){
     var action = this,
-        extraScope = this.scope.value;
+        extraScope = this.triggerScope.value;
 
     for(var key in extraScope){
         scope[key] = extraScope[key];
@@ -7036,7 +7047,7 @@ set.source.binding = 'c';
 set.target.binding = '[c]';
 
 var scope = new Scope();
-scope.scope.binding = '(object "c" [a])';
+scope.triggerScope.binding = '(object "c" [a])';
 scope.actions.trigger = [set];
 
 // create a button to test with
@@ -7116,10 +7127,8 @@ EventEmitter.prototype.emit = function(type) {
       er = arguments[1];
       if (er instanceof Error) {
         throw er; // Unhandled 'error' event
-      } else {
-        throw TypeError('Uncaught, unspecified "error" event.');
       }
-      return false;
+      throw TypeError('Uncaught, unspecified "error" event.');
     }
   }
 
@@ -7204,7 +7213,10 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      console.trace();
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
     }
   }
 
@@ -7403,6 +7415,16 @@ process.browser = true;
 process.env = {};
 process.argv = [];
 
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
 }
@@ -7413,4 +7435,4 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}]},{},[26])
+},{}]},{},[26]);
