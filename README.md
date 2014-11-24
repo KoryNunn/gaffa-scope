@@ -26,14 +26,14 @@ eg:
 
     // A child action to trigger.
     var set = new Set();
-    set.source.binding = 'c'; // 'c' has been put in scope by the Scope action.
-    set.target.binding = '[c]';
+    set.source.binding = 'number'; // 'number' has been put in scope by the Scope action.
+    set.target.binding = '[number]';
 
-    // A scope action puts a variable, 'c' into scope, with the value of [a]
+    // A scope action puts a variable, 'number' into scope, with the value of 123
     var scope = new Scope();
-    scope.triggerScope.binding = '{"c" [a]}';
+    scope.triggerScope.value = {number:123};
 
-    // Assign the child to be run whe  the scope action is triggered.
+    // Assign the child to be run when the scope action is triggered.
     scope.actions.trigger = [set];
 
 ## Actions
